@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <!-- ============================================================
+       Neuro-Kinetic Web Hub — HTML5 Structure
+       Progetto Capolavoro — Liceo Scientifico Sportivo
+       Autore: [Il tuo nome] | Anno Scolastico: 2025/2026
+       ============================================================ -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#00f5d4" />
+  <meta name="description" content="Analisi biomeccanica sportiva in tempo reale tramite IA e sensori. Progetto Capolavoro per il Liceo Scientifico Sportivo." />
+  <!-- Standard W3C (Chrome/Android) -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <!-- iOS Safari (legacy, ancora supportato) -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NKHub" />
+
+  <title>Neuro-Kinetic Web Hub | Biomeccanica Sportiva con IA</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Google Fonts: Inter per un look professionale -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet principale -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- ============================================================
+       CDN IMPORTS — Librerie Esterne
+       ============================================================ -->
+
+  <!-- TensorFlow.js Core: il motore per l'intelligenza artificiale -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js" defer></script>
+
+  <!-- TensorFlow.js: Backend WebGL per l'accelerazione GPU nel browser -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.17.0/dist/tf-backend-webgl.min.js" defer></script>
+
+  <!-- Pose Detection API: include il modello MoveNet per la stima della posa -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js" defer></script>
+
+  <!-- Chart.js: per i grafici dinamici in tempo reale -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
+
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER — Barra superiore con logo e stato connessione
+       ============================================================ -->
+  <header class="app-header" role="banner">
+    <div class="header-left">
+      <div class="logo-icon" aria-hidden="true">⚡</div>
+      <div class="logo-text">
+        <span class="logo-title">NKHub</span>
+        <span class="logo-subtitle">Neuro-Kinetic Web Hub</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Indicatore sport attualmente selezionato -->
+      <div class="sport-badge" id="sportBadge">🏉 Rugby</div>
+      <!-- Indicatore stato sessione -->
+      <div class="session-dot" id="sessionDot" title="Sessione inattiva"></div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       CONTENUTO PRINCIPALE — Three Panels (Tab-based Navigation)
+       ============================================================ -->
+  <main class="app-main" id="appMain" role="main">
+
+    <!-- ========================================================
+         PANNELLO 1: DASHBOARD — Statistiche e Configurazione
+         ======================================================== -->
+    <section class="panel active" id="panelDashboard" role="tabpanel" aria-label="Dashboard">
+
+      <!-- Hero Card: Benvenuto -->
+      <div class="hero-card">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <h1 class="hero-title">Biomeccanica<br /><span class="accent-text">con l'IA</span></h1>
+        <p class="hero-subtitle">Analizza movimento, forza e impatto in tempo reale durante il tuo allenamento sportivo.</p>
+      </div>
+
+      <!-- Selettore Sport -->
+      <div class="card" id="sportSelector">
+        <h2 class="card-title">
+          <span class="card-icon" aria-hidden="true">🏅</span>
+          Seleziona Disciplina
+        </h2>
+        <p class="card-desc">La scelta dello sport adatta le soglie di rilevamento degli impatti e i parametri biomeccanici.</p>
+        <div class="sport-grid" role="group" aria-label="Selezione disciplina sportiva">
+          <button class="sport-btn active" id="btnRugby" data-sport="rugby" data-threshold="3.5" aria-pressed="true">
+            <span class="sport-emoji">🏉</span>
+            <span class="sport-name">Rugby</span>
+            <span class="sport-detail">Soglia: 3.5G</span>
+          </button>
+          <button class="sport-btn" id="btnCalcio" data-sport="calcio" data-threshold="2.5" aria-pressed="false">
+            <span class="sport-emoji">⚽</span>
+            <span class="sport-name">Calcio</span>
+            <span class="sport-detail">Soglia: 2.5G</span>
+          </button>
+          <button class="sport-btn" id="btnPallavolo" data-sport="pallavolo" data-threshold="2.0" aria-pressed="false">
+            <span class="sport-emoji">🏐</span>
+            <span class="sport-name">Pallavolo</span>
+            <span class="sport-detail">Soglia: 2.0G</span>
+          </button>
+          <button class="sport-btn" id="btnAtletica" data-sport="atletica" data-threshold="4.0" aria-pressed="false">
+            <span class="sport-emoji">🏃</span>
+            <span class="sport-name">Atletica</span>
+            <span class="sport-detail">Soglia: 4.0G</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistiche Sessione -->
+      <div class="card" id="statsCard">
+        <h2 class="card-title">
+          <span class="card-icon" aria-hidden="true">📊</span>
+          Statistiche Sessione
+        </h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value accent-cyan" id="statMinAngle">--°</div>
+            <div class="stat-label">Angolo Min<br />Ginocchio</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value accent-magenta" id="statMaxG">--G</div>
+            <div class="stat-label">G-Force<br />Massima</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value accent-purple" id="statImpacts">0</div>
+            <div class="stat-label">Impatti<br />Rilevati</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statDuration">00:00</div>
+            <div class="stat-label">Durata<br />Sessione</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Impatti -->
+      <div class="card" id="impactLogCard">
+        <h2 class="card-title">
+          <span class="card-icon" aria-hidden="true">💥</span>
+          Log Impatti
+        </h2>
+        <div class="impact-log" id="impactLog" role="log" aria-live="polite" aria-label="Log degli impatti rilevati">
+          <div class="log-empty" id="logEmpty">
+            <span aria-hidden="true">📋</span>
+            <p>Nessun impatto rilevato.<br />Avvia il Kinetic Sensor per iniziare.</p>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-full" id="btnExportLog">
+          <span aria-hidden="true">📥</span> Esporta Dati JSON
+        </button>
+      </div>
+
+      <!-- Sezione Formule Fisiche (educativa) -->
+      <div class="card formula-card">
+        <h2 class="card-title">
+          <span class="card-icon" aria-hidden="true">📐</span>
+          Formule Fisiche Applicate
+        </h2>
+        <div class="formula-block">
+          <p class="formula-label">Angolo Articolare (Prodotto Scalare)</p>
+          <div class="formula-math">
+            cos(θ) = <span class="accent-cyan">(v₁ · v₂)</span> / <span class="accent-magenta">(|v₁| × |v₂|)</span>
+          </div>
+          <p class="formula-desc">Dove v₁ = vettore anca→ginocchio e v₂ = vettore caviglia→ginocchio. L'angolo θ descrive il grado di flessione del ginocchio.</p>
+        </div>
+        <div class="formula-block">
+          <p class="formula-label">Accelerazione Risultante (G-Force)</p>
+          <div class="formula-math">
+            G = <span class="accent-cyan">√(x² + y² + z²)</span>
+          </div>
+          <p class="formula-desc">Somma vettoriale delle accelerazioni sui tre assi, misurata in multipli dell'accelerazione di gravità (g ≈ 9.81 m/s²).</p>
+        </div>
+        <div class="formula-block">
+          <p class="formula-label">Media Mobile Esponenziale (EMA) — Rilevamento Picchi</p>
+          <div class="formula-math">
+            EMA<sub>t</sub> = α × G<sub>t</sub> + <span class="accent-purple">(1 - α) × EMA<sub>t-1</sub></span>
+          </div>
+          <p class="formula-desc">Fattore α = 0.1 smootizza il segnale. Un picco viene rilevato quando G supera la soglia sport selezionata.</p>
+        </div>
+      </div>
+
+    </section><!-- /panelDashboard -->
+
+
+    <!-- ========================================================
+         PANNELLO 2: VISION ENGINE — IA + Fotocamera
+         ======================================================== -->
+    <section class="panel" id="panelVision" role="tabpanel" aria-label="Vision Engine">
+
+      <div class="panel-header">
+        <h2 class="panel-title"><span class="accent-text">Vision Engine</span></h2>
+        <p class="panel-desc">IA biomeccanica in tempo reale. Il modello <strong>MoveNet Lightning</strong> traccia 17 keypoints del corpo e calcola gli angoli articolari.</p>
+      </div>
+
+      <!-- Controlli Fotocamera -->
+      <div class="card control-card">
+        <div class="control-row">
+          <button class="btn btn-primary btn-large" id="btnStartCamera" aria-label="Avvia fotocamera e analisi IA">
+            <span aria-hidden="true">📷</span> Avvia Fotocamera
+          </button>
+          <button class="btn btn-danger" id="btnStopCamera" disabled aria-label="Ferma fotocamera">
+            <span aria-hidden="true">⏹</span> Stop
+          </button>
+        </div>
+        <!-- Indicatore stato modello IA -->
+        <div class="ai-status" id="aiStatus" role="status" aria-live="polite">
+          <div class="ai-status-dot idle" id="aiStatusDot"></div>
+          <span id="aiStatusText">Modello IA non caricato</span>
+        </div>
+      </div>
+
+      <!-- Contenitore Video + Canvas sovrapposto -->
+      <div class="vision-container" id="visionContainer">
+        <!-- Placeholder quando la camera è spenta -->
+        <div class="vision-placeholder" id="visionPlaceholder" aria-label="Fotocamera disattivata">
+          <div class="placeholder-icon" aria-hidden="true">🤖</div>
+          <p>Premi <strong>Avvia Fotocamera</strong> per iniziare l'analisi IA del movimento</p>
+        </div>
+        <!-- Elemento video: stream dalla fotocamera -->
+        <video id="videoElement" autoplay playsinline muted aria-label="Stream fotocamera"></video>
+        <!-- Canvas per disegnare scheletro e keypoints sopra il video -->
+        <canvas id="poseCanvas" aria-label="Overlay analisi posa"></canvas>
+        <!-- Overlay feedback angolo critico -->
+        <div class="angle-alert" id="angleAlert" aria-live="assertive" role="alert">
+          <span class="alert-icon" aria-hidden="true">⚠️</span>
+          <span class="alert-text">ANGOLO CRITICO &lt;90°</span>
+        </div>
+      </div>
+
+      <!-- Info angoli in tempo reale -->
+      <div class="card" id="angleDisplayCard">
+        <h2 class="card-title"><span class="card-icon" aria-hidden="true">📐</span> Angoli Articolari</h2>
+        <div class="angle-grid">
+          <div class="angle-item">
+            <div class="angle-label">Ginocchio Sinistro</div>
+            <div class="angle-value" id="angleLeft">--°</div>
+            <div class="angle-bar-container">
+              <div class="angle-bar" id="angleBarLeft"></div>
+            </div>
+          </div>
+          <div class="angle-item">
+            <div class="angle-label">Ginocchio Destro</div>
+            <div class="angle-value" id="angleRight">--°</div>
+            <div class="angle-bar-container">
+              <div class="angle-bar" id="angleBarRight"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Legenda angoli -->
+        <div class="angle-legend">
+          <span class="legend-item"><span class="legend-dot green"></span> &gt; 120° Posizione eretta</span>
+          <span class="legend-item"><span class="legend-dot yellow"></span> 90-120° Caricamento</span>
+          <span class="legend-item"><span class="legend-dot red"></span> &lt; 90° Angolo critico</span>
+        </div>
+      </div>
+
+      <!-- Grafico angolo articolare nel tempo -->
+      <div class="card chart-card">
+        <h2 class="card-title"><span class="card-icon" aria-hidden="true">📈</span> Andamento Angolo nel Tempo</h2>
+        <div class="chart-container">
+          <canvas id="angleChart" aria-label="Grafico variazione angolo ginocchio nel tempo"></canvas>
+        </div>
+      </div>
+
+    </section><!-- /panelVision -->
+
+
+    <!-- ========================================================
+         PANNELLO 3: KINETIC SENSOR — Accelerometro & Impatti
+         ======================================================== -->
+    <section class="panel" id="panelKinetic" role="tabpanel" aria-label="Kinetic Sensor">
+
+      <div class="panel-header">
+        <h2 class="panel-title"><span class="accent-text">Kinetic Sensor</span></h2>
+        <p class="panel-desc">Analisi degli impatti fisici tramite <strong>accelerometro</strong>. Misura la forza G e rileva picchi di contatto (placcaggi, salti, cambi direzione).</p>
+      </div>
+
+      <!-- Controlli Sensore -->
+      <div class="card control-card">
+        <div class="control-row">
+          <button class="btn btn-primary btn-large" id="btnStartSensor" aria-label="Avvia rilevamento accelerometro">
+            <span aria-hidden="true">📡</span> Avvia Sensore
+          </button>
+          <button class="btn btn-danger" id="btnStopSensor" disabled aria-label="Ferma rilevamento">
+            <span aria-hidden="true">⏹</span> Stop
+          </button>
+        </div>
+        <!-- Soglia impatto configurabile -->
+        <div class="threshold-control">
+          <label class="threshold-label" for="thresholdSlider">
+            Soglia Impatto: <span class="accent-cyan" id="thresholdValue">3.5G</span>
+          </label>
+          <input type="range" id="thresholdSlider" class="threshold-slider"
+                 min="1.0" max="8.0" step="0.1" value="3.5"
+                 aria-label="Soglia rilevamento impatto in G" />
+          <div class="threshold-labels">
+            <span>1G Camminata</span>
+            <span>8G Impatto forte</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Display G-Force in tempo reale (Display grande, leggibile) -->
+      <div class="card gforce-display-card">
+        <h2 class="card-title"><span class="card-icon" aria-hidden="true">💪</span> G-Force Attuale</h2>
+        <div class="gforce-main">
+          <div class="gforce-value" id="gforceValue">0.00</div>
+          <div class="gforce-unit">G</div>
+        </div>
+        <!-- Barre per i singoli assi -->
+        <div class="axis-display">
+          <div class="axis-item">
+            <span class="axis-label">X</span>
+            <div class="axis-bar-container">
+              <div class="axis-bar axis-x" id="axisBarX"></div>
+            </div>
+            <span class="axis-value" id="axisValueX">0.00</span>
+          </div>
+          <div class="axis-item">
+            <span class="axis-label">Y</span>
+            <div class="axis-bar-container">
+              <div class="axis-bar axis-y" id="axisBarY"></div>
+            </div>
+            <span class="axis-value" id="axisValueY">0.00</span>
+          </div>
+          <div class="axis-item">
+            <span class="axis-label">Z</span>
+            <div class="axis-bar-container">
+              <div class="axis-bar axis-z" id="axisBarZ"></div>
+            </div>
+            <span class="axis-value" id="axisValueZ">0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contatore impatti con animazione -->
+      <div class="card impact-counter-card">
+        <h2 class="card-title"><span class="card-icon" aria-hidden="true">💥</span> Rilevamento Impatti</h2>
+        <div class="impact-display">
+          <div class="impact-count" id="impactCounter">0</div>
+          <div class="impact-label">impatti rilevati</div>
+        </div>
+        <div class="impact-last" id="impactLast">In attesa del primo impatto...</div>
+      </div>
+
+      <!-- Grafico G-Force in tempo reale -->
+      <div class="card chart-card">
+        <h2 class="card-title"><span class="card-icon" aria-hidden="true">📈</span> G-Force in Tempo Reale</h2>
+        <div class="chart-container">
+          <canvas id="gforceChart" aria-label="Grafico G-Force in tempo reale"></canvas>
+        </div>
+      </div>
+
+    </section><!-- /panelKinetic -->
+
+  </main><!-- /appMain -->
+
+
+  <!-- ============================================================
+       BOTTOM NAVIGATION — Navigazione principale mobile
+       ============================================================ -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
+    <button class="nav-btn active" id="navDashboard" data-target="panelDashboard" aria-pressed="true" aria-label="Dashboard">
+      <span class="nav-icon" aria-hidden="true">🏠</span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-btn" id="navVision" data-target="panelVision" aria-pressed="false" aria-label="Vision Engine IA">
+      <span class="nav-icon" aria-hidden="true">👁️</span>
+      <span class="nav-label">Vision IA</span>
+    </button>
+    <button class="nav-btn" id="navKinetic" data-target="panelKinetic" aria-pressed="false" aria-label="Kinetic Sensor">
+      <span class="nav-icon" aria-hidden="true">📡</span>
+      <span class="nav-label">Sensore</span>
+    </button>
+  </nav>
+
+
+  <!-- ============================================================
+       TOAST NOTIFICATIONS — Overlay per feedback non intrusivo
+       ============================================================ -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive" role="status"></div>
+
+
+  <!-- Script principale (defer garantisce che il DOM sia pronto) -->
+  <script src="script.js" defer></script>
+
+</body>
+</html>
