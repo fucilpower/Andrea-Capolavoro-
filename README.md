@@ -10,9 +10,9 @@
 
 ---
 
-## 📖 Cos'è Neuro-Kinetic Web Hub?
+## 📖 Cos'è Neuro-Kinetic Hub?
 
-**Neuro-Kinetic Web Hub (NKHub)** è una **Progressive Web App (PWA)** che porta l'analisi biomeccanica sportiva — fino ad oggi riservata a laboratori universitari e centri di alto livello — direttamente sullo smartphone dell'atleta, senza costi e senza installare nulla.
+**Neuro-Kinetic Hub (NKHub)** è una **Progressive App (PWA)** che porta l'analisi biomeccanica sportiva — fino ad oggi riservata a laboratori universitari e centri di alto livello — direttamente sullo smartphone dell'atleta, senza costi e senza installare nulla.
 
 L'app combina tre tecnologie all'avanguardia:
 
