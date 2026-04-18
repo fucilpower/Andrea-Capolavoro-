@@ -192,8 +192,8 @@ capolavoro/
 
 ## 👨‍💻 Autore
 
-**[Il tuo nome]**  
-Classe [anno] — Liceo Scientifico Sportivo  
+**Andrea Manai**  
+3ASS — Liceo Scientifico Sportivo  
 Anno Scolastico 2025/2026
 
 ---
