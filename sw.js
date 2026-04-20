@@ -4,7 +4,7 @@
  * Strategia: Cache First con fallback alla rete.
  */
 
-const CACHE_NAME = 'nk-hub-v3';
+const CACHE_NAME = 'nk-hub-v4';
 
 // Risorse da mettere in cache per il funzionamento offline
 const ASSETS_TO_CACHE = [

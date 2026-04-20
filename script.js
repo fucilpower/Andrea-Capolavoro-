@@ -109,6 +109,28 @@ const DOM = {
   panels:          document.querySelectorAll('.panel'),
   navBtns:         document.querySelectorAll('.nav-btn'),
 
+  // Sidebar e Home Action
+  btnHamburger:    document.getElementById('btnHamburger'),
+  btnCloseSidebar: document.getElementById('btnCloseSidebar'),
+  sidebar:         document.getElementById('sidebar'),
+  sidebarOverlay:  document.getElementById('sidebarOverlay'),
+  btnGoDashboard:  document.getElementById('btnGoDashboard'),
+  btnGoScreening:  document.getElementById('btnGoScreening'),
+
+  // Screening Salute
+  healthForm:      document.getElementById('healthForm'),
+  inputAge:        document.getElementById('inputAge'),
+  inputWeight:     document.getElementById('inputWeight'),
+  inputHeight:     document.getElementById('inputHeight'),
+  inputSys:        document.getElementById('inputSys'),
+  inputDia:        document.getElementById('inputDia'),
+  screeningResultCard: document.getElementById('screeningResultCard'),
+  bmiValue:        document.getElementById('bmiValue'),
+  bmiDesc:         document.getElementById('bmiDesc'),
+  bpValue:         document.getElementById('bpValue'),
+  bpDesc:          document.getElementById('bpDesc'),
+  screeningFeedback: document.getElementById('screeningFeedback'),
+
   // Sport buttons
   sportBtns:       document.querySelectorAll('.sport-btn'),
 
@@ -225,8 +247,99 @@ function inizializzaNavigazione() {
       document.getElementById(targetId).classList.add('active');
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
+
+      // Chiudi il menu laterale (se aperto) quando si clicca una voce
+      chiudiSidebar();
     });
   });
+
+  // Sidebar toggle
+  if(DOM.btnHamburger) {
+    DOM.btnHamburger.addEventListener('click', () => {
+      DOM.sidebar.classList.add('open');
+      DOM.sidebarOverlay.classList.add('active');
+    });
+  }
+  
+  if(DOM.btnCloseSidebar) {
+    DOM.btnCloseSidebar.addEventListener('click', chiudiSidebar);
+  }
+  
+  if(DOM.sidebarOverlay) {
+    DOM.sidebarOverlay.addEventListener('click', chiudiSidebar);
+  }
+
+  // Home CTA (Bottoni azione rapida)
+  if(DOM.btnGoDashboard) {
+    DOM.btnGoDashboard.addEventListener('click', () => document.getElementById('navDashboard').click());
+  }
+  if(DOM.btnGoScreening) {
+    DOM.btnGoScreening.addEventListener('click', () => document.getElementById('navScreening').click());
+  }
+
+  // Inizializza Screening form
+  if(DOM.healthForm) {
+    DOM.healthForm.addEventListener('submit', gestisciScreening);
+  }
+}
+
+function chiudiSidebar() {
+  if (DOM.sidebar && DOM.sidebarOverlay) {
+    DOM.sidebar.classList.remove('open');
+    DOM.sidebarOverlay.classList.remove('active');
+  }
+}
+
+/**
+ * Gestisce l'invio del form Tracking Salute
+ */
+function gestisciScreening(e) {
+  e.preventDefault();
+
+  const eta = parseInt(DOM.inputAge.value, 10);
+  const peso = parseFloat(DOM.inputWeight.value);
+  const altezzaCm = parseInt(DOM.inputHeight.value, 10);
+  const sys = parseInt(DOM.inputSys.value, 10);
+  const dia = parseInt(DOM.inputDia.value, 10);
+
+  // Calcolo BMI: peso / (altezza in metri)^2
+  const altezzaM = altezzaCm / 100;
+  const bmi = peso / (altezzaM * altezzaM);
+
+  // Valutazione BMI
+  let bmiStato = 'Normopeso';
+  let bmiClasse = 'success';
+  if (bmi < 18.5) { bmiStato = 'Sottopeso'; bmiClasse = 'warning'; }
+  else if (bmi >= 25 && bmi < 30) { bmiStato = 'Sovrappeso'; bmiClasse = 'warning'; }
+  else if (bmi >= 30) { bmiStato = 'Obeso'; bmiClasse = 'danger'; }
+
+  DOM.bmiValue.textContent = bmi.toFixed(1);
+  DOM.bmiValue.className = `result-value ${bmiClasse}`;
+  DOM.bmiDesc.textContent = bmiStato;
+
+  // Valutazione Pressione
+  let bpStato = 'Normale';
+  let bpClasse = 'success';
+  if (sys > 140 || dia > 90) { bpStato = 'Alta (Ipertensione)'; bpClasse = 'danger'; }
+  else if (sys < 90 || dia < 60) { bpStato = 'Bassa (Ipotensione)'; bpClasse = 'warning'; }
+  else if (sys >= 130 || dia >= 85) { bpStato = 'Lievemente Alta'; bpClasse = 'warning'; }
+
+  DOM.bpValue.textContent = `${sys}/${dia}`;
+  DOM.bpValue.className = `result-value ${bpClasse}`;
+  DOM.bpDesc.textContent = bpStato;
+
+  // Messaggio Feedback Strutturato
+  let feedbackText = '';
+  if (bpClasse === 'danger' || bmiClasse === 'danger') {
+    feedbackText = "I tuoi parametri suggeriscono la necessità di un controllo professionale. Ti consigliamo di consultare il tuo medico di base quanto prima.";
+  } else if (bpClasse === 'warning' || bmiClasse === 'warning') {
+    feedbackText = "Alcuni dei tuoi parametri si discostano dai valori ottimali. Un'attività fisica regolare ed un'attenzione alla dieta possono esserti d'aiuto.";
+  } else {
+    feedbackText = "Ottimo! I tuoi parametri rientrano nella norma. Continua a mantenerti attivo usando NKHub per le tue sessioni di allenamento!";
+  }
+
+  DOM.screeningFeedback.textContent = feedbackText;
+  DOM.screeningResultCard.classList.remove('hidden');
 }
 
 // ============================================================
