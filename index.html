@@ -54,6 +54,9 @@
        ============================================================ -->
   <header class="app-header" role="banner">
     <div class="header-left">
+      <button class="hamburger-btn" id="btnHamburger" aria-label="Apri menu">
+        <span aria-hidden="true">☰</span>
+      </button>
       <div class="logo-icon" aria-hidden="true">⚡</div>
       <div class="logo-text">
         <span class="logo-title">NKHub</span>
@@ -74,9 +77,41 @@
   <main class="app-main" id="appMain" role="main">
 
     <!-- ========================================================
+         PANNELLO 0: HOME — Pagina Iniziale
+         ======================================================== -->
+    <section class="panel active" id="panelHome" role="tabpanel" aria-label="Home">
+      <div class="hero-card">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <h1 class="hero-title">Benvenuto in<br /><span class="accent-text">NKHub</span></h1>
+        <p class="hero-subtitle">Il tuo centro avanzato per l'analisi biomeccanica e il monitoraggio del benessere.</p>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <span class="card-icon" aria-hidden="true">📌</span>
+          Come funziona
+        </h2>
+        <ul class="how-it-works-list">
+          <li><strong>👁️ Vision IA:</strong> Analizza i tuoi movimenti e angoli articolari in tempo reale usando la fotocamera.</li>
+          <li><strong>📡 Sensore Kinetic:</strong> Monitora gli impatti fisici e le forze G durante il tuo allenamento sportivo.</li>
+          <li><strong>🩺 Screening:</strong> Valuta istantaneamente i tuoi parametri vitali e il tuo indice di massa corporea (IMC).</li>
+        </ul>
+      </div>
+
+      <div class="home-actions">
+        <button class="btn btn-primary btn-large" id="btnGoDashboard">
+          <span aria-hidden="true">🚀</span> Inizia Allenamento
+        </button>
+        <button class="btn btn-secondary btn-large" id="btnGoScreening">
+          <span aria-hidden="true">🩺</span> Screening Salute
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================================
          PANNELLO 1: DASHBOARD — Statistiche e Configurazione
          ======================================================== -->
-    <section class="panel active" id="panelDashboard" role="tabpanel" aria-label="Dashboard">
+    <section class="panel" id="panelDashboard" role="tabpanel" aria-label="Dashboard">
 
       <!-- Hero Card: Benvenuto -->
       <div class="hero-card">
@@ -362,26 +397,114 @@
 
     </section><!-- /panelKinetic -->
 
+    <!-- ========================================================
+         PANNELLO 4: SCREENING SALUTE
+         ======================================================== -->
+    <section class="panel" id="panelScreening" role="tabpanel" aria-label="Screening Salute">
+      <div class="panel-header">
+        <h2 class="panel-title"><span class="accent-text">Screening Salute</span></h2>
+        <p class="panel-desc">Monitora i tuoi parametri base. Inserisci i dati per valutare il tuo Indice di Massa Corporea (IMC) e lo stato pressorio.</p>
+      </div>
+
+      <div class="card form-card">
+        <form id="healthForm" class="health-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="inputAge">Età (anni)</label>
+              <input type="number" id="inputAge" min="1" max="120" required placeholder="Es: 25">
+            </div>
+            <div class="form-group">
+              <label for="inputWeight">Peso (kg)</label>
+              <input type="number" id="inputWeight" step="0.1" min="20" max="300" required placeholder="Es: 70">
+            </div>
+            <div class="form-group">
+              <label for="inputHeight">Altezza (cm)</label>
+              <input type="number" id="inputHeight" min="50" max="250" required placeholder="Es: 175">
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="inputSys">Pressione Sistolica (mmHg)</label>
+              <input type="number" id="inputSys" min="50" max="250" required placeholder="Es: 120">
+            </div>
+            <div class="form-group">
+              <label for="inputDia">Pressione Diastolica (mmHg)</label>
+              <input type="number" id="inputDia" min="30" max="150" required placeholder="Es: 80">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <span aria-hidden="true">🩺</span> Analizza Parametri
+          </button>
+        </form>
+      </div>
+
+      <!-- Risultati Screening (Nascosti di default) -->
+      <div class="card result-card hidden" id="screeningResultCard">
+        <h3 class="result-title">Esito della Valutazione</h3>
+        <div class="result-grid">
+          <div class="result-item">
+            <span class="result-label">Il tuo BMI</span>
+            <span class="result-value" id="bmiValue">--</span>
+            <span class="result-desc" id="bmiDesc">--</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Pressione Arteriosa</span>
+            <span class="result-value" id="bpValue">--/--</span>
+            <span class="result-desc" id="bpDesc">--</span>
+          </div>
+        </div>
+        <div class="screening-feedback" id="screeningFeedback">
+        </div>
+      </div>
+
+      <!-- Disclaimer Medico -->
+      <div class="card medical-disclaimer">
+        <div class="disclaimer-icon" aria-hidden="true">⚠️</div>
+        <div class="disclaimer-text">
+          <h4 class="disclaimer-title">Disclaimer Medico</h4>
+          <p>I risultati forniti da questa applicazione hanno scopo puramente informativo e non sostituiscono in alcun modo il parere di un medico professionista.</p>
+        </div>
+      </div>
+    </section><!-- /panelScreening -->
+
   </main><!-- /appMain -->
 
 
   <!-- ============================================================
-       BOTTOM NAVIGATION — Navigazione principale mobile
+       SIDEBAR NAVIGATION — Menu a comparsa
        ============================================================ -->
-  <nav class="bottom-nav" role="navigation" aria-label="Navigazione principale">
-    <button class="nav-btn active" id="navDashboard" data-target="panelDashboard" aria-pressed="true" aria-label="Dashboard">
-      <span class="nav-icon" aria-hidden="true">🏠</span>
-      <span class="nav-label">Dashboard</span>
-    </button>
-    <button class="nav-btn" id="navVision" data-target="panelVision" aria-pressed="false" aria-label="Vision Engine IA">
-      <span class="nav-icon" aria-hidden="true">👁️</span>
-      <span class="nav-label">Vision IA</span>
-    </button>
-    <button class="nav-btn" id="navKinetic" data-target="panelKinetic" aria-pressed="false" aria-label="Kinetic Sensor">
-      <span class="nav-icon" aria-hidden="true">📡</span>
-      <span class="nav-label">Sensore</span>
-    </button>
-  </nav>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Navigazione principale">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Menu Principale</span>
+      <button class="close-sidebar-btn" id="btnCloseSidebar" aria-label="Chiudi menu">✕</button>
+    </div>
+    <div class="sidebar-links">
+      <button class="nav-btn active" id="navHome" data-target="panelHome" aria-pressed="true">
+        <span class="nav-icon" aria-hidden="true">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-btn" id="navDashboard" data-target="panelDashboard" aria-pressed="false">
+        <span class="nav-icon" aria-hidden="true">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-btn" id="navVision" data-target="panelVision" aria-pressed="false">
+        <span class="nav-icon" aria-hidden="true">👁️</span>
+        <span class="nav-label">Vision IA</span>
+      </button>
+      <button class="nav-btn" id="navKinetic" data-target="panelKinetic" aria-pressed="false">
+        <span class="nav-icon" aria-hidden="true">📡</span>
+        <span class="nav-label">Sensore</span>
+      </button>
+      <button class="nav-btn" id="navScreening" data-target="panelScreening" aria-pressed="false">
+        <span class="nav-icon" aria-hidden="true">🩺</span>
+        <span class="nav-label">Salute &amp; Formato</span>
+      </button>
+    </div>
+  </aside>
 
 
   <!-- ============================================================
